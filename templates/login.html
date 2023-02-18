@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Short Url</title>
+    <link rel="stylesheet" href="/static/index.css">
+</head>
+{% if  logged%}
+<script>
+    setTimeout(()=>{
+        window.location.href="/"
+        document.getElementById("resultmsg").style += "color:green";
+    },800)
+</script>
+{% endif %}
+<body>
+    <button id="SignupBtn" onclick="window.location.href='/signup'" class="RightAlign Button">Signup</button><br/><br/>
+    <h1 id="appName" class="centerElem centerText" onclick="window.location.href='/'">595 Url Shortner</h1>
+    <p id="title">
+        To save your URLs permanently, log in to your account. 
+        This allows you to edit the destination URL of any links you create after logging in,
+         ensuring that your links always lead to the right place.</p>
+        <div id="shortUrl">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <h4 id="resultmsg"class="centerText">{{messages[-1]}}</h4>
+            {% endif %}
+            {% endwith %}
+            <form method="post">
+               <table>
+                <tbody>
+                    <tr>
+                        <td>Email:</td><td><input type="text" name="email" placeholder ="Enter Email" class="inputText"></td>
+                    </tr>
+                    <tr>
+                        <td>Password:</td><td><input type="text" name="password"placeholder ="Enter Password" class="inputText"></td>
+                    </tr>
+                    <tr>
+                        <td><a href="/forgotPassword">Forgot Password</td>
+                        <td style="text-align:center"><a href="/signup">Dont have account Signup</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><button type="submit" class="Button submitBtn">Login</button></td>
+                    </tr>
+                </tbody>
+               </table>
+            </form>
+        </div>
+    <p id="bottomDesc">Create a permanent link that never expires or gets deleted, even for frequently changing URLs.
+         With this feature, you can easily change the destination URL at any time, 
+         ensuring that your links always lead to the right place</p>
+
+</body>
+</html>

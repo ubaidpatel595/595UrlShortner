@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Short Url</title>
+    <link rel="stylesheet" href="/static/index.css">
+</head>
+<body>
+    {% if session['loggedIn'] == True %}
+    <button id="LoginBtn" onclick="window.location.href='/Logout'" class="RightAlign Button">Logout</button>
+    <button id="SignupBtn" onclick="window.location.href='/changepassword'" class="RightAlign Button">Change Password</button><br/><br/>
+    {% else %}
+    <button id="LoginBtn" onclick="window.location.href='/login'" class="RightAlign Button">Login</button>
+    <button id="SignupBtn" onclick="window.location.href='/signup'" class="RightAlign Button">Signup</button><br/><br/>
+    {% endif %}
+    
+    <h1 id="appName" class="centerElem centerText" >595 Url Shortner</h1>
+    <p id="title">
+        To save your URLs permanently, log in to your account. 
+        This allows you to edit the destination URL of any links you create after logging in,
+         ensuring that your links always lead to the right place.</p>
+        <div id="shortUrl">
+            <form method="post" name="short">
+                Url : <input type="text" name="url" required class="inputText" placeholder="Paste Url Here"><br>
+                <button type="submit" id="shortBtn" class="Button">Short URL</button>
+            </form>
+        </div>
+    {% if session['loggedIn'] == True%}
+    {% if prevurls|length>0 %}
+    <div id="savedLinks">
+    <table>
+        <thead>
+            <tr><th>Link</th><th></th><th>Destination Url</th><th></th><th></th></tr>
+        </thead>
+        <tbody>
+        {% for url in prevurls  %}
+        <tr>
+            <td><textarea disabled rows='1'cols='30' id="{{url['endpoint']}}">{{request.host_url+url['endpoint']}}</textarea></td>
+            <td><img src="static/copy.png" id="btn" alt="Copy Url" height="30px" onclick="copyLink('{{url['endpoint']}}')"/></td>
+            <td>{{url['url']}}</td>
+            <td><button onclick="window.location.href='/editLink/{{url['endpoint']}}'">Edit Url</button></td>
+            <td><button onclick="window.location.href='/delete/{{url['endpoint']}}'">Delete Link</button></td>
+        </tr> 
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% endif %}
+    {% endif %}
+    <p id="bottomDesc" style="margin-top: 150px;">Create a permanent link that never expires or gets deleted, even for frequently changing URLs.
+         With this feature, you can easily change the destination URL at any time, 
+         ensuring that your links always lead to the right place</p>
+    <script>
+        function copyLink(id){
+            let elem = document.getElementById(id)
+            elem.disabled = false;
+            elem.select()
+            document.execCommand('copy')
+            elem.disabled = true;
+            alert("copied")
+        }
+    </script>
+</body>
+</html>

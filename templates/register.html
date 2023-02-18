@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Short Url</title>
+    <link rel="stylesheet" href="/static/index.css">
+</head>
+<body>
+    <button id="LoginBtn" onclick="window.location.href='/login'" class="RightAlign Button">Login</button><br/><br/>
+    <h1 id="appName" class="centerElem centerText" onclick="window.location.href='/'">595 Url Shortner</h1>
+    <p id="title">
+        To save your URLs permanently, log in to your account. 
+        This allows you to edit the destination URL of any links you create after logging in,
+         ensuring that your links always lead to the right place.</p>
+        <div id="shortUrl">
+            <form method="post">
+               <table>
+                <tbody>
+                    <tr>
+                        <td>Email:</td><td><input type="text" name="email" placeholder ="Enter Email" class="inputText"></td>
+                    </tr>
+                    <tr>
+                        <td>Mobile:</td><td><input type="text" name="mobile" id="" placeholder="Enter mobile" class="inputText"></td>
+                    </tr>
+                    <tr>
+                        <td>Password:</td><td><input type="text" name="password"placeholder ="Enter Password" class="inputText"></td>
+                    </tr>
+                    <tr>
+                        <td> Comfirm paaasword:</td><td><input type="text" placeholder="Confirm Password"  name="cpass"class="inputText" id=""></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center" colspan="2"><a href="/login">Already have account Login</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><button type="submit" class="Button submitBtn">Signup</button></td>
+                    </tr>
+                </tbody>
+               </table>
+            </form>
+        </div>
+    <p id="bottomDesc">Create a permanent link that never expires or gets deleted, even for frequently changing URLs.
+         With this feature, you can easily change the destination URL at any time, 
+         ensuring that your links always lead to the right place</p>
+
+</body>
+</html>
+
+
