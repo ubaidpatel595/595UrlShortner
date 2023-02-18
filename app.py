@@ -23,7 +23,7 @@ mail = Mail(app)
 bcrypt = Bcrypt(app)
 
 #Mongo Db Comfiguration
-client = pymongo.MongoClient("mongodb://localhost:27017/")
+client = pymongo.MongoClient("mongodb+srv://ubaidpatel595:ubaidP123@cluster0.oacc2sw.mongodb.net/")
 db = client['urlshort']
 collect = db['urls']
 users = db['users']
@@ -113,6 +113,7 @@ def login():
 
 @app.route("/signup",methods=["GET","POST"])
 def register():
+    logged =False
     if request.method == "POST":
         password = request.form['password']
         mobile = request.form['mobile']
@@ -122,10 +123,13 @@ def register():
         cursor = users.find_one({"email":email})
         if cursor == None:
             users.insert_one({"email":email,"mobile":mobile,"password":passh})
-            return "Account created successfull"
+            flash("Account created successfull")
+            logged = True
+            session["userId"] = email
+            session['loggedIn'] = True
         else:
-            return "User already exist"
-    return render_template("register.html")
+            flash("User already exist")
+    return render_template("register.html",logged=logged)
 
 @app.route("/changepassword",methods=["GET","POST"])
 def changepass():

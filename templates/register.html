@@ -6,6 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Short Url</title>
     <link rel="stylesheet" href="/static/index.css">
+    {% if  logged%}
+<script>
+    setTimeout(()=>{
+        window.location.href="/"
+        document.getElementById("resultmsg").style += "color:green";
+    },800)
+</script>
+{% endif %}
 </head>
 <body>
     <button id="LoginBtn" onclick="window.location.href='/login'" class="RightAlign Button">Login</button><br/><br/>
@@ -15,6 +23,11 @@
         This allows you to edit the destination URL of any links you create after logging in,
          ensuring that your links always lead to the right place.</p>
         <div id="shortUrl">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <h4 id="resultmsg"class="centerText">{{messages[-1]}}</h4>
+            {% endif %}
+            {% endwith %}
             <form method="post">
                <table>
                 <tbody>
