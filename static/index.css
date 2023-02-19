@@ -98,3 +98,22 @@
     width: max-content;
     border-radius: 10px;
 }
+#mobileTable{
+    display: none;
+}
+@media only screen and (max-width: 500px) {
+    #savedLinks{
+        display: none;
+    }
+    #mobileTable{
+        display: block;
+        margin-top: 100px;
+    }
+  }
+#mobileTable table{
+    border: 1px solid;
+    margin-top: 20px;
+    overflow: hidden;
+    max-width: 100%;
+    margin: auto;
+}

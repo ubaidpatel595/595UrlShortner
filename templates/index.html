@@ -31,25 +31,43 @@
     {% if session['loggedIn'] == True%}
     {% if prevurls|length>0 %}
     <div id="savedLinks">
-    <table>
+    <table id="deskTable">
         <thead>
-            <tr><th>Link</th><th></th><th>Destination Url</th><th></th><th></th></tr>
+            <tr><th>Destination Url</th><th>Link</th><th></th><th></th><th></th></tr>
         </thead>
         <tbody>
         {% for url in prevurls  %}
         <tr>
-            <td><textarea disabled rows='1'cols='30' id="{{url['endpoint']}}">{{request.host_url+url['endpoint']}}</textarea></td>
-            <td><img src="static/copy.png" id="btn" alt="Copy Url" height="30px" onclick="copyLink('{{url['endpoint']}}')"/></td>
             <td>{{url['url']}}</td>
-            <td><button onclick="window.location.href='/editLink/{{url['endpoint']}}'">Edit Url</button></td>
-            <td><button onclick="window.location.href='/delete/{{url['endpoint']}}'">Delete Link</button></td>
+            <td><textarea disabled rows='1'cols='30' id="{{url['endpoint']}}">{{request.host_url+url['endpoint']}}</textarea></td>
+            <td><img src="static/copy.png" title="Copy Url" alt="Copy Url" height="30px" onclick="copyLink('{{url['endpoint']}}')"/></td>
+            <td><img src="static/edit.png" title="Edit Url" alt="Edit Url" height="30px" onclick="window.location.href='/editLink/{{url['endpoint']}}'"/></td>
+            <td><img src="static/delete.png" title="delete link" alt="Delete Link" height="30px" onclick="window.location.href='/delete/{{url['endpoint']}}'"/></td>
         </tr> 
         {% endfor %}
         </tbody>
     </table>
     </div>
+    <div id="mobileTable">
+        {% for url in prevurls  %}
+        <table>
+            <tr>
+                <td>Url : {{url['url']}}</td>
+            </tr>
+            <tr>
+                <td>
+                    Link :<textarea disabled rows='1'cols='30' id="{{url['endpoint']}}">{{request.host_url+url['endpoint']}}</textarea>
+            <img src="static/copy.png" title="Copy Url" alt="Copy Url" height="30px" onclick="copyLink('{{url['endpoint']}}')"/>
+            <img src="static/edit.png" title="Edit Url" alt="Edit Url" height="30px" onclick="window.location.href='/editLink/{{url['endpoint']}}'"/>
+            <img src="static/delete.png" title="delete link" alt="Delete Link" height="30px" onclick="window.location.href='/delete/{{url['endpoint']}}'"/>
+                </td>
+            </tr>
+        </table>
+        {% endfor %}
+    </div>
     {% endif %}
     {% endif %}
+    
     <p id="bottomDesc" style="margin-top: 150px;">Create a permanent link that never expires or gets deleted, even for frequently changing URLs.
          With this feature, you can easily change the destination URL at any time, 
          ensuring that your links always lead to the right place</p>
