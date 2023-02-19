@@ -7,7 +7,7 @@ from datetime import datetime,timedelta
 from flask_mail import Mail,Message
 import threading
 
-app = Flask("urlShortner")
+app = Flask(__name__)
 app.secret_key = "ubaidqwrtyu"
 # Configuring mail servicve
 app.config['MAIL_PORT'] = 587
@@ -224,4 +224,5 @@ def redir(endpoint):
     except:
         return "<script>setTimeout(()=>{window.location.href='/'},800)</script><h1 style='text-align:center'>invalid Url<h1>"
 
-app.run()
+if __name__ == "__main__":
+    app.run(debug=True)
