@@ -224,4 +224,4 @@ def redir(endpoint):
     except:
         return "<script>setTimeout(()=>{window.location.href='/'},800)</script><h1 style='text-align:center'>invalid Url<h1>"
 
-app.run(debug=True)
+app.run()
