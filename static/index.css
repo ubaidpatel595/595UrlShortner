@@ -24,13 +24,14 @@
     padding-top: 10px;
     padding-bottom: 10px;
     border-radius: 10px;
+    max-width: 100%;
 }
 #title{
     text-align: center;
     margin: auto;
     margin-top: 20px;
     font-size: 18px;
-    max-width: 400px;
+    max-width: 100%;
 }
 #shortUrl{
     margin: auto;
@@ -39,6 +40,7 @@
     background-color: rgb(245, 215, 208);
     padding: 30px;
     border-radius: 10px;
+    max-width: 100%;
 }
 #shortBtn{
     font-size: 15px;
