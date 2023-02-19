@@ -9,7 +9,6 @@ import threading
 
 app = Flask("urlShortner")
 app.secret_key = "ubaidqwrtyu"
-
 # Configuring mail servicve
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
@@ -18,7 +17,6 @@ app.config['MAIL_USERNAME'] = 'ubaidpatel595@gmail.com'
 app.config['MAIL_PASSWORD'] = 'dzavvnlewlytlute'
 app.config['MAIL_DEFAULT_SENDER'] = 'ubaidpatel595@gmail.com'
 mail = Mail(app)
-
 #Password Encoder To secure passwords
 bcrypt = Bcrypt(app)
 
@@ -62,6 +60,8 @@ def SendEmail(email,token):
 
 @app.route("/",methods=["GET","POST"])
 def home():
+  loggedin = session.get("loggedIn")
+  print(loggedin)
   urls =[]
   if request.method == 'POST':
     url = request.form['url']
@@ -71,26 +71,25 @@ def home():
         endpoint= uniqueEnd(6)
         cursor =  collect.find_one({"endpoint":endpoint})
         if cursor == None:
-            if session['loggedIn'] == True:
+            if loggedin != None and loggedin == True:
                 collect.insert_one({"url":url,"endpoint":endpoint,"user":session['userId']})
             else:
              collect.insert_one({"url":url,"endpoint":endpoint})
             alvail = True
-    url=request.host_url+endpoint
-    if session['loggedIn'] ==True:
+    if loggedin != None and loggedin == True:
         return redirect("/")
-    return render_template("result.html",url=url)
+    return redirect("/result/"+endpoint)
   else:
-    if session['loggedIn'] == True:
+    if loggedin != None:
         cursor = collect.find({"user":session['userId']})
         for doc in cursor:
             urls.append(doc)
     return render_template('index.html',prevurls=urls,session=session)
-@app.route("/<endpoint>",)
-def redir(endpoint):
-    data  = collect.find_one({"endpoint":endpoint})
-    return redirect(data['url'])
 
+@app.route("/result/<endpoint>")
+def result(endpoint):
+    url = request.host_url+endpoint
+    return render_template("result.html",url=url)
 
 @app.route("/login",methods=["GET","POST"])
 def login():
@@ -133,7 +132,8 @@ def register():
 
 @app.route("/changepassword",methods=["GET","POST"])
 def changepass():
-    if session['loggedIn'] == False:
+    loggedin = session.get("loggedIn")
+    if  loggedin == None or loggedin ==False:
         return redirect("/")
     if request.method == 'POST':
         password = request.form['oldPassword']
@@ -189,7 +189,8 @@ def ResetPass(token):
         return render_template("resetPassword.html")
 @app.route("/editLink/<endpoint>",methods=["GET","POST"])
 def editlink(endpoint):
-    if session['loggedIn'] == False:
+    loggedin = session.get("loggedIn")
+    if loggedin == None or loggedin ==False:
         return redirect("/")
     logged =False
     if request.method == 'POST':
@@ -213,5 +214,14 @@ def Logout():
 def delete(endpoint):
     res = collect.delete_one({"endpoint":endpoint})
     return redirect("/")
-    
-app.run()
+
+ 
+@app.route("/<endpoint>",)
+def redir(endpoint):
+    data  = collect.find_one({"endpoint":endpoint})
+    try:
+        return redirect(data['url'])
+    except:
+        return "<script>setTimeout(()=>{window.location.href='/'},800)</script><h1 style='text-align:center'>invalid Url<h1>"
+
+app.run(debug=True)
