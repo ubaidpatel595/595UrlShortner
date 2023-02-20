@@ -54,11 +54,11 @@
         {% for url in prevurls  %}
         <table>
             <tr>
-                <td>Url : <textarea disabled rows='1'cols='30' id="{{url['url']}}">{{url['url']}}</textarea> &nbsp; <img src="static/edit.png" class = "imgBtn" title="Edit Url" alt="Edit Url" height="30px" onclick="window.location.href='/editLink/{{url['endpoint']}}'"/></td>
+                <td>Url : <textarea disabled rows='2'cols='30' id="{{url['url']}}">{{url['url']}}</textarea> &nbsp; <img src="static/edit.png" class = "imgBtn" title="Edit Url" alt="Edit Url" height="30px" onclick="window.location.href='/editLink/{{url['endpoint']}}'"/></td>
             </tr>
             <tr>
                 <td>
-                    Link :<textarea disabled rows='1'cols='30' id="{{url['endpoint']}}">{{request.host_url+url['endpoint']}}</textarea>
+                    Link :<textarea disabled rows='2'cols='30' id="{{url['endpoint']}}">{{request.host_url+url['endpoint']}}</textarea>
             <img src="static/copy.png" class = "imgBtn"  title="Copy Url" alt="Copy Url" height="30px" onclick="copyLink('{{url['endpoint']}}')"/>
             <img src="static/delete.png" class = "imgBtn" title="delete link" alt="Delete Link" height="30px" onclick="deleteLink('{{url['endpoint']}}')"/>
                 </td>

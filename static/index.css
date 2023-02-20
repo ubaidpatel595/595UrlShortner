@@ -110,6 +110,14 @@ body{
     margin-left: 20px;
     margin-right: 20px;
 }
+textarea{
+    background-color: #a1bd9e;
+    outline: none;
+    border: none;
+    resize: vertical;
+    color: black;
+    height: auto;
+}
 @media only screen and (max-width: 500px) {
     #savedLinks{
         display: none;
@@ -130,6 +138,12 @@ body{
     .inputText{
         width: 100%;
     }
+    textarea {
+        box-sizing: border-box;
+        height: auto !important;
+        overflow: auto;
+      }
+      
     ::placeholder {
         color: #505768;
         font-size: 13px;
@@ -153,13 +167,6 @@ body{
 }
 #shortUrl td,#changePass td{
     vertical-align: bottom;
-}
-textarea{
-    background-color: #a1bd9e;
-    outline: none;
-    border: none;
-    resize: none;
-    color: black;
 }
 button{
     height: 25px;
