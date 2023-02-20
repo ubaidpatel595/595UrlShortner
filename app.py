@@ -167,6 +167,7 @@ def reset():
 
 @app.route("/ResetPassword/<token>",methods=["GET","POST"])
 def ResetPass(token):
+    logged = False
     if request.method == 'POST':
         try:
             token = jwt.decode(token.encode(),app.secret_key,'HS256')
@@ -175,13 +176,10 @@ def ResetPass(token):
             email = token['sub']
             passh =  bcrypt.generate_password_hash(password=password).decode('utf-8')
             users.update_one({"email":email},{'$set':{"password":passh}})
-            print(password)
-            return "Password Change Success"
+            flash("Password Change Success")
         except Exception as e:
-            print(e.__class__)
-            return "Link Expired"
-    else:
-        return render_template("resetPassword.html")
+            flash("Link Expired")
+    return render_template("resetPassword.html",logged=logged)
 @app.route("/editLink/<endpoint>",methods=["GET","POST"])
 def editlink(endpoint):
     loggedin = session.get("loggedIn")

@@ -70,6 +70,7 @@
     margin-top: 20px;
 }
 ::placeholder {
+    text-align: center;
     font-size: 18px;
     letter-spacing: 1px;
     word-spacing: 2px;
@@ -79,7 +80,6 @@
     outline: none;
     border: none;
     border-bottom: 1px solid;
-    text-align: center;
     font-size: 18px;
     color:black;
     background-color: #95ad9cba;
