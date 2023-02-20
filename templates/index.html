@@ -18,10 +18,12 @@
     {% endif %}
     
     <h1 id="appName" class="centerElem centerText" >595 Url Shortner</h1>
+    {% if session['loggedIn'] == False  %}
     <p id="title">
         To save your URLs permanently, log in to your account. 
         This allows you to edit the destination URL of any links you create after logging in,
          ensuring that your links always lead to the right place.</p>
+    {% endif %}
         <div id="shortUrl">
             <form method="post" name="short">
                 Url : <input type="text" name="url" required class="inputText" placeholder="Paste Url Here"><br>
@@ -33,16 +35,16 @@
     <div id="savedLinks">
     <table id="deskTable">
         <thead>
-            <tr><th>Destination Url</th><th>Link</th><th></th><th></th><th></th></tr>
+            <tr><th>Destination Url</th><th></th><th>Link</th><th></th><th></th><th></th></tr>
         </thead>
         <tbody>
         {% for url in prevurls  %}
         <tr>
             <td>{{url['url']}}</td>
+            <td><img src="static/edit.png" class = "imgBtn" title="Edit Url" alt="Edit Url" height="30px" onclick="window.location.href='/editLink/{{url['endpoint']}}'"/></td>
             <td><textarea disabled rows='1'cols='30' id="{{url['endpoint']}}">{{request.host_url+url['endpoint']}}</textarea></td>
-            <td><img src="static/copy.png" title="Copy Url" alt="Copy Url" height="30px" onclick="copyLink('{{url['endpoint']}}')"/></td>
-            <td><img src="static/edit.png" title="Edit Url" alt="Edit Url" height="30px" onclick="window.location.href='/editLink/{{url['endpoint']}}'"/></td>
-            <td><img src="static/delete.png" title="delete link" alt="Delete Link" height="30px" onclick="window.location.href='/delete/{{url['endpoint']}}'"/></td>
+            <td><img src="static/copy.png" class = "imgBtn"title="Copy Url" alt="Copy Url" height="30px" onclick="copyLink('{{url['endpoint']}}')"/></td>
+            <td><img src="static/delete.png" class = "imgBtn" title="delete link" alt="Delete Link" height="30px" onclick="deleteLink('{{url['endpoint']}}')"/></td>
         </tr> 
         {% endfor %}
         </tbody>
@@ -52,14 +54,13 @@
         {% for url in prevurls  %}
         <table>
             <tr>
-                <td>Url : {{url['url']}}</td>
+                <td>Url : <textarea disabled rows='1'cols='30' id="{{url['url']}}">{{url['url']}}</textarea> &nbsp; <img src="static/edit.png" class = "imgBtn" title="Edit Url" alt="Edit Url" height="30px" onclick="window.location.href='/editLink/{{url['endpoint']}}'"/></td>
             </tr>
             <tr>
                 <td>
                     Link :<textarea disabled rows='1'cols='30' id="{{url['endpoint']}}">{{request.host_url+url['endpoint']}}</textarea>
-            <img src="static/copy.png" title="Copy Url" alt="Copy Url" height="30px" onclick="copyLink('{{url['endpoint']}}')"/>
-            <img src="static/edit.png" title="Edit Url" alt="Edit Url" height="30px" onclick="window.location.href='/editLink/{{url['endpoint']}}'"/>
-            <img src="static/delete.png" title="delete link" alt="Delete Link" height="30px" onclick="window.location.href='/delete/{{url['endpoint']}}'"/>
+            <img src="static/copy.png" class = "imgBtn"  title="Copy Url" alt="Copy Url" height="30px" onclick="copyLink('{{url['endpoint']}}')"/>
+            <img src="static/delete.png" class = "imgBtn" title="delete link" alt="Delete Link" height="30px" onclick="deleteLink('{{url['endpoint']}}')"/>
                 </td>
             </tr>
         </table>
@@ -79,6 +80,12 @@
             document.execCommand('copy')
             elem.disabled = true;
             alert("copied")
+        }
+        function deleteLink(endpoint){
+            let conf = confirm("Do you really want to delete link")
+            if(conf){
+                window.location.href='/delete/'+endpoint
+            }
         }
     </script>
 </body>

@@ -132,30 +132,25 @@ def register():
 
 @app.route("/changepassword",methods=["GET","POST"])
 def changepass():
+    logged = False
     loggedin = session.get("loggedIn")
     if  loggedin == None or loggedin ==False:
         return redirect("/")
     if request.method == 'POST':
         password = request.form['oldPassword']
         newpassword = request.form['newPassword']
-        if session['loggedIn']:
-            print("loggedin")
-            user = session['userId']
-            cursor =  users.find_one({"email":user})
-            if bcrypt.check_password_hash(cursor['password'],password):
-                newdat = cursor
-                newpass = bcrypt.generate_password_hash(newpassword).decode('utf-8')
-                result = users.update_one({"email":user},{"$set":{"password":newpass}})
-                if result.modified_count == 1:
-                    return "Password Change Success"
-            else:
-                return "Incorrect Old Password"
-            return "logged in"+newpassword
+        user = session['userId']
+        cursor =  users.find_one({"email":user})
+        if bcrypt.check_password_hash(cursor['password'],password):
+            newdat = cursor
+            newpass = bcrypt.generate_password_hash(newpassword).decode('utf-8')
+            result = users.update_one({"email":user},{"$set":{"password":newpass}})
+            if result.modified_count == 1:
+                flash("Password Change Success") 
+                logged =True
         else:
-            print("noit")
-            return "Logout"
-    else:
-        return render_template("changepass.html")
+            flash("Incorrect Old Password")
+    return render_template("changepass.html",logged=logged)
 
 @app.route("/forgotPassword",methods = ['GET','POST'])
 def reset():

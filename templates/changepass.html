@@ -7,15 +7,25 @@
             <title>595 Url Shortner</title>
             <link rel="stylesheet" href="/static/index.css">
             <link rel="shortcut icon" href="/static/favicon.png" type="image/x-icon">
+            {% if  logged%}
+            <script>
+                setTimeout(()=>{
+                    window.location.href="/"
+                    document.getElementById("resultmsg").style += "color:green";
+                },800)
+            </script>
+            {% endif %}
         </head>
         <body>
-            <button id="SignupBtn" onclick="window.location.href='/Logout'" class="RightAlign Button">Logout</button><br/><br/>
+            <button id="SignupBtn" onclick="window.location.href='/Logout'" class="RightAlign Button">Logout</button>
+            <button id="LoginBtn" onclick="window.location.href='/'" class="RightAlign Button">Home</button><br/><br/>
             <h1 id="appName" class="centerElem centerText" onclick="window.location.href='/'">595 Url Shortner</h1>
-            <p id="title">
-                To save your URLs permanently, log in to your account. 
-                This allows you to edit the destination URL of any links you create after logging in,
-                 ensuring that your links always lead to the right place.</p>
-                <div id="shortUrl">
+                <div id="changePass">
+                    {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                    <h4 id="resultmsg"class="centerText">{{messages[-1]}}</h4>
+                    {% endif %}
+                    {% endwith %}
                     <form method="post">
                        <table>
                         <tbody>
@@ -34,10 +44,6 @@
                         </tbody>
                        </table>
                     </form>
-                </div>
-            <p id="bottomDesc">Create a permanent link that never expires or gets deleted, even for frequently changing URLs.
-                 With this feature, you can easily change the destination URL at any time, 
-                 ensuring that your links always lead to the right place</p>
-        
+                </div>        
         </body>
         </html>
