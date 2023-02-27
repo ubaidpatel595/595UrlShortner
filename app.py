@@ -6,8 +6,10 @@ import jwt
 from datetime import datetime,timedelta
 from flask_mail import Mail,Message
 import threading
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app,supports_credentials=True)
 app.secret_key = "ubaidqwrtyu"
 # Configuring mail servicve
 app.config['MAIL_PORT'] = 587
@@ -57,113 +59,101 @@ def SendEmail(email,token):
         except RuntimeError as e:
             print(e.__context__)
 
+def verifyToken(token):
+    try:
+            token = jwt.decode(token.encode(),app.secret_key,'HS256')
+            return {"isVerified":True,"userid":token['sub']}
+    except Exception as e:
+            return {"isVerified":False,"userid":None}
 
 @app.route("/",methods=["GET","POST"])
 def home():
-  loggedin = session.get("loggedIn")
-  print(loggedin)
-  urls =[]
-  if request.method == 'POST':
-    url = request.form['url']
+    return render_template('index.html')
+
+@app.route("/createLink",methods=["POST"])
+def createLink():
+    url = request.args.get('url')
+    token = request.args.get('token')
+    tokenVerification = verifyToken(token)
     alvail = False
     endpoint = ''
     while alvail == False:
         endpoint= uniqueEnd(6)
         cursor =  collect.find_one({"endpoint":endpoint})
         if cursor == None:
-            if loggedin != None and loggedin == True:
-                collect.insert_one({"url":url,"endpoint":endpoint,"user":session['userId']})
+            if tokenVerification['isVerified']:
+                print(tokenVerification['userid'])
+                collect.insert_one({"url":url,"endpoint":endpoint,"user":tokenVerification['userid']})
             else:
              collect.insert_one({"url":url,"endpoint":endpoint})
             alvail = True
-    if loggedin != None and loggedin == True:
-        return redirect("/")
-    return redirect("/result/"+endpoint)
-  else:
-    if loggedin != None:
-        cursor = collect.find({"user":session['userId']})
-        for doc in cursor:
-            urls.append(doc)
-    return render_template('index.html',prevurls=urls,session=session)
+    return(jsonify({"auth":tokenVerification["isVerified"],"endpoint":endpoint,"message":"Link Created Successfull"}))   
 
-@app.route("/result/<endpoint>")
-def result(endpoint):
-    url = request.host_url+endpoint
-    return render_template("result.html",url=url)
-
-@app.route("/login",methods=["GET","POST"])
+@app.route("/login",methods=["POST"])
 def login():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
+        email = request.args.get('email')
+        password = request.args.get('password')
         cursor = users.find_one({"email":email})
         if cursor != None:
             passh = cursor['password']
             if bcrypt.check_password_hash(passh,password):
-                session["userId"] = cursor['email']
-                session['loggedIn'] = True
-                flash('Login Success')
-                return render_template("login.html",logged=True)
+                token = generateJwt(cursor['email'],400) 
+                links = []
+                newcursor = collect.find({"user":email})
+                for link in newcursor:
+                    linkobj = {"endpoint":link['endpoint'],"url":link['url']}
+                    links.append(linkobj)
+                return jsonify({"status":1,"token":token,"links":links,"message":"Login success"})
             else:
-                flash('Incorrect Password')
+                return jsonify({"status":0,"token":None,"links":[],"message":"Incorrect Password"})
         else:
-            flash('User Not Found Please Create Account')
-    return render_template("login.html",logged=False)
+            return jsonify({"status":-1,"token":None,"links":[],"message":"User not found please create account"})
 
-@app.route("/signup",methods=["GET","POST"])
+@app.route("/signup",methods=["POST"])
 def register():
-    logged =False
-    if request.method == "POST":
-        password = request.form['password']
-        mobile = request.form['mobile']
-        email = request.form['email']
+        password = request.args.get('password')
+        mobile = request.args.get('mobile')
+        email = request.args.get('email')
         cursor = users.find_one({"email":email})
         passh = bcrypt.generate_password_hash(password).decode('utf-8')
-        cursor = users.find_one({"email":email})
         if cursor == None:
             users.insert_one({"email":email,"mobile":mobile,"password":passh})
-            flash("Account created successfull")
-            logged = True
-            session["userId"] = email
-            session['loggedIn'] = True
+            token = generateJwt(email,400)
+            return jsonify({"status":1,"token":token,"message":"Account Created Successfully"})
         else:
-            flash("User already exist")
-    return render_template("register.html",logged=logged)
+            return jsonify({"status":0,"token":None,"message":"User Already Exist Please Login"})
 
-@app.route("/changepassword",methods=["GET","POST"])
+@app.route("/changepassword",methods=["POST"])
 def changepass():
-    logged = False
-    loggedin = session.get("loggedIn")
-    if  loggedin == None or loggedin ==False:
-        return redirect("/")
-    if request.method == 'POST':
-        password = request.form['oldPassword']
-        newpassword = request.form['newPassword']
-        user = session['userId']
-        cursor =  users.find_one({"email":user})
+    token = request.args.get('token')
+    password = request.args.get('oldPassword')
+    newpassword = request.args.get('newPassword')
+    tokenverify = verifyToken(token)
+    if tokenverify['isVerified']:
+        if(password == None or newpassword == None):
+            return jsonify({"status":0,"message":"Passwords Cant Be Empty"})
+        cursor =  users.find_one({"email":tokenverify['userid']})
+        print(tokenverify['userid'])
         if bcrypt.check_password_hash(cursor['password'],password):
-            newdat = cursor
             newpass = bcrypt.generate_password_hash(newpassword).decode('utf-8')
-            result = users.update_one({"email":user},{"$set":{"password":newpass}})
+            result = users.update_one({"email":tokenverify['userid']},{"$set":{"password":newpass}})
             if result.modified_count == 1:
-                flash("Password Change Success") 
-                logged =True
+                return jsonify({"status":1,"message":"Password Changed Successfully"}) 
         else:
-            flash("Incorrect Old Password")
-    return render_template("changepass.html",logged=logged)
+            return jsonify({"status":0,"message":"Incorrect Old Password"})
+    else:
+        return jsonify({"status":-1,"message":"Invalid Token"})
 
-@app.route("/forgotPassword",methods = ['GET','POST'])
+@app.route("/forgotPassword",methods = ['POST'])
 def reset():
-    if request.method == 'POST':
-        email = request.form['email']
-        cursor = users.find_one({"email":email})
-        if cursor !=None:
-            token =request.host_url+"ResetPassword/"+generateJwt(cursor['email'],10)
-            threading.Thread(target=SendEmail,args=(email,token)).start()
-            flash("Reset Link Sent To Registered Email")
-        else:
-            flash("User Not Found Please Register")
-    return render_template("forgotPassword.html")
+    email = request.args.get('email')
+    cursor = users.find_one({"email":email})
+    if cursor !=None:
+        token =request.host_url+"ResetPassword/"+generateJwt(cursor['email'],10)
+        threading.Thread(target=SendEmail,args=(email,token)).start()
+        return jsonify({"status":1,"message":"Reset link sent to registered email"})
+    else:
+        return jsonify({"status":0,"message":"User Not Found"})
 
 @app.route("/ResetPassword/<token>",methods=["GET","POST"])
 def ResetPass(token):
@@ -180,21 +170,19 @@ def ResetPass(token):
         except Exception as e:
             flash("Link Expired")
     return render_template("resetPassword.html",logged=logged)
-@app.route("/editLink/<endpoint>",methods=["GET","POST"])
-def editlink(endpoint):
-    loggedin = session.get("loggedIn")
-    if loggedin == None or loggedin ==False:
-        return redirect("/")
-    logged =False
-    if request.method == 'POST':
-        link = request.form['link']
-        collect.update_one({"endpoint":endpoint},{"$set":{"url":link}})
-        flash("Link Edited Success")
-        logged =True
-        return  render_template("editLink.html",url=link,logged=logged)
+@app.route("/editLink",methods=["POST"])
+def editlink():
+    endpoint = request.args.get('endpoint')
+    url = request.args.get('url')
+    token = request.args.get('token')
+    tokenverify = verifyToken(token)
+    if tokenverify['isVerified']:
+        if(collect.find_one({"endpoint":endpoint}) == None):
+            return jsonify({"status":0,"message":"Invalid Endpoint"})
+        collect.update_one({"endpoint":endpoint},{"$set":{"url":url}})
+        return jsonify({"status":1,"message":"Link Updated Successfully"})
     else:
-        link = collect.find_one({"endpoint":endpoint})
-    return render_template("editLink.html",url=link['url'],logged=logged)
+        return jsonify({"status":-1,"message":"Invalid Token"})
 
 @app.route("/Logout")
 def Logout():
@@ -203,11 +191,17 @@ def Logout():
     flash("Succesfully Logged Out")
     return render_template("logout.html",logged = True)
 
-@app.route("/delete/<endpoint>")
-def delete(endpoint):
-    res = collect.delete_one({"endpoint":endpoint})
-    return redirect("/")
-
+@app.route("/delete",methods=['POST'])
+def delete():
+    endpoint = request.args.get('endpoint')
+    url = request.args.get('url')
+    token = request.args.get('token')
+    tokenverify = verifyToken(token)
+    if tokenverify['isVerified']:
+        res = collect.delete_one({"endpoint":endpoint})
+        return jsonify({"status":1,"message":"Link Deleted Successfully"})
+    else:
+        return jsonify({"status":-1,"message":"Invalid Token"})
  
 @app.route("/<endpoint>",)
 def redir(endpoint):
@@ -218,4 +212,4 @@ def redir(endpoint):
         return "<script>setTimeout(()=>{window.location.href='/'},800)</script><h1 style='text-align:center'>invalid Url<h1>"
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True,host="192.168.43.160",port=5000)
